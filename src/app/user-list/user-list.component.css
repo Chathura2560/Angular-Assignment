@@ -75,6 +75,42 @@
   box-shadow: none;
 }
 
+.pagination-controls {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  padding: 8px 16px;
+  font-size: 1rem;
+  color: #ffffff; /* Text color for buttons */
+  background-color: #007bff; /* Button background color */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+.pagination-controls button:disabled {
+  background-color: #d6d6d6; /* Disabled button background */
+  color: #777777; /* Disabled button text color */
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+
 
 /* Alert message styling */
 .alert {
@@ -191,6 +227,7 @@ tbody tr:nth-child(even) {
     font-size: 1.2em;
     color: #06033A;
   }
+
 
 
 

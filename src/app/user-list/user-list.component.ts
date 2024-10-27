@@ -11,29 +11,31 @@ import { FormsModule } from '@angular/forms';
   imports: [HttpClientModule, CommonModule, FormsModule],
 })
 export class UserListComponent implements OnInit {
-  userList: any[] = []; // Original list of fetched users
-  filteredUserList: any[] = []; // List to display after filtering
+  userList: any[] = [];
+  filteredUserList: any[] = [];
+  paginatedUserList: any[] = []; // Users for the current page
   private http = inject(HttpClient);
 
-  userId: string = ''; // Input for dynamic URL fetching
-  searchId?: string; // Filter by ID
-  searchTitle: string = ''; // Filter by Title
-  searchBody: string = ''; // Filter by Body
+  userId: string = '';
+  searchId?: string;
+  searchTitle: string = '';
+  searchBody: string = '';
   buttonAction: boolean = false;
 
-  // Alert message properties
   alertMessage: string | null = null;
   alertType: 'success' | 'error' | null = null;
-
-  // Loading state
   isLoading: boolean = false;
+
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  totalPages: number = 1;
 
   ngOnInit(): void {}
 
-  // Fetch users based on userId or fetch all users if userId is empty
   getAllUsers() {
     this.buttonAction = true;
-    this.isLoading = true; // Start loading
+    this.isLoading = true;
     const url = this.userId
       ? `https://jsonplaceholder.typicode.com/posts?userId=${this.userId}`
       : 'https://jsonplaceholder.typicode.com/posts';
@@ -44,20 +46,20 @@ export class UserListComponent implements OnInit {
         this.filteredUserList = result;
         this.alertMessage = 'Users fetched successfully!';
         this.alertType = 'success';
-        this.isLoading = false; // Stop loading
+        this.isLoading = false;
+        this.setPagination();
         this.clearAlertAfterDelay();
       },
       (error) => {
         console.error('Error fetching users:', error);
         this.alertMessage = 'Failed to fetch users. Please try again.';
         this.alertType = 'error';
-        this.isLoading = true; // Stop loading
+        this.isLoading = false;
         this.clearAlertAfterDelay();
       }
     );
   }
 
-  // Filter the user list based on search fields
   onSearch() {
     this.filteredUserList = this.userList.filter((user) => {
       const matchesId = this.searchId ? user.id.toString() === this.searchId : true;
@@ -66,13 +68,11 @@ export class UserListComponent implements OnInit {
       return matchesId && matchesTitle && matchesBody;
     });
 
-    if (this.filteredUserList.length > 0) {
-      this.alertMessage = 'Filter applied successfully!';
-      this.alertType = 'success';
-    } else {
-      this.alertMessage = 'No results found for the applied filter.';
-      this.alertType = 'error';
-    }
+    this.setPagination();
+    this.alertMessage = this.filteredUserList.length
+      ? 'Filter applied successfully!'
+      : 'No results found for the applied filter.';
+    this.alertType = this.filteredUserList.length ? 'success' : 'error';
     this.clearAlertAfterDelay();
   }
 
@@ -80,18 +80,44 @@ export class UserListComponent implements OnInit {
     this.searchId = '';
     this.searchTitle = '';
     this.searchBody = '';
-    this.filteredUserList = this.userList; // Reset to the full list
+    this.filteredUserList = this.userList;
+    this.setPagination();
   }
 
   buttonClick() {
     this.getAllUsers();
   }
 
-  // Method to clear the alert message after a delay
+  setPagination() {
+    this.totalPages = Math.ceil(this.filteredUserList.length / this.itemsPerPage);
+    this.currentPage = 1;
+    this.updatePaginatedList();
+  }
+
+  updatePaginatedList() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedUserList = this.filteredUserList.slice(startIndex, endIndex);
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePaginatedList();
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePaginatedList();
+    }
+  }
+
   private clearAlertAfterDelay() {
     setTimeout(() => {
       this.alertMessage = null;
       this.alertType = null;
-    }, 3000); // Clear after 3 seconds
+    }, 3000);
   }
 }

@@ -1,17 +1,8 @@
 <div *ngIf="isLoading" class="loading-indicator">
   <p>Loading...</p>
-  <!-- Optionally, you could add a spinner icon here -->
 </div>
 
 <div *ngIf="!isLoading" class="user-list">
-  <!-- The rest of your existing code -->
-</div>
-
-<div *ngIf="alertMessage" class="alert" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
-  {{ alertMessage }}
-</div>
-
-<div class="user-list">
   <form>
     <div *ngIf="buttonAction == false" class="button-container">
       <div class="card text-center">
@@ -22,7 +13,6 @@
         </div>
       </div>
     </div>
-
 
     <div *ngIf="buttonAction == true" class="row">
       <div class="col-md-2">
@@ -53,14 +43,21 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let user of filteredUserList">
+    <tr *ngFor="let user of paginatedUserList">
       <td>{{ user.id }}</td>
       <td>{{ user.title }}</td>
       <td>{{ user.body }}</td>
     </tr>
-    <tr *ngIf="filteredUserList.length === 0">
+    <tr *ngIf="paginatedUserList.length === 0">
       <td colspan="3" class="text-center">No results found</td>
     </tr>
     </tbody>
   </table>
+
+  <!-- Pagination controls -->
+  <div class="pagination-controls" *ngIf="buttonAction && paginatedUserList.length">
+    <button [disabled]="currentPage === 1" (click)="previousPage()" class="btn btn-secondary">Previous</button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button [disabled]="currentPage === totalPages" (click)="nextPage()" class="btn btn-secondary">Next</button>
+  </div>
 </div>
